@@ -3,6 +3,7 @@ package eliaslander.bookapp;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,9 +13,30 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.GridView;
+import android.widget.ListView;
+import android.widget.Toast;
+import android.widget.ViewFlipper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private ListView listView;
+    private GridView gridView;
+    public enum viewType {
+        GRID, LIST;
+        viewType toggle(){
+            if(this.equals(GRID))
+                return LIST;
+            else
+                return GRID;
+        }
+    };
+    private viewType viewMode = viewType.GRID;
+    private final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +62,29 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        ArrayList<Book> books = new ArrayList<>();
+        books.add(new Book("Harry potter", "derp"));
+        BookListAdapter listAdapter = new BookListAdapter(this, books);
+        BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
+        listView = (ListView) findViewById(R.id.list_view);
+        listView.setAdapter(listAdapter);
+        gridView = (GridView) findViewById(R.id.grid_view);
+        gridView.setAdapter(gridAdapter);
+
+        AdapterView.OnItemClickListener clickListener =  new AdapterView.OnItemClickListener(){
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(), "Item clicked", Toast.LENGTH_SHORT).show();
+                switchView(viewMode.toggle());
+            }
+        };
+        listView.setOnItemClickListener(clickListener);
+        gridView.setOnItemClickListener(clickListener);
+        resetView();
+
     }
 
     @Override
@@ -97,5 +142,31 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void resetView(){
+        String dbg = "";
+        switch(viewMode){
+            case GRID:
+                gridView.setVisibility(View.VISIBLE);
+                listView.setVisibility(View.INVISIBLE);
+                dbg+="grid";
+                break;
+            case LIST:
+                gridView.setVisibility(View.INVISIBLE);
+                listView.setVisibility(View.VISIBLE);
+                dbg+="list";
+                break;
+            default:
+                gridView.setVisibility(View.INVISIBLE);
+                listView.setVisibility(View.INVISIBLE);
+                dbg+="error";
+        }
+        Log.d(TAG,dbg);
+    }
+
+    public void switchView(viewType mode){
+        this.viewMode = mode;
+        this.resetView();
     }
 }
