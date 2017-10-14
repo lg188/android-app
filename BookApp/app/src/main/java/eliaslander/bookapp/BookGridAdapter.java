@@ -16,26 +16,23 @@ import java.util.ArrayList;
  * @author lg188
  */
 
-public class BookGridAdapter extends ArrayAdapter<Book> {
+class BookGridAdapter extends ArrayAdapter<Book> {
 
     /**
-     * Constructor
-     * @param context
-     * @param books
+     * @param books A list of books
      */
     public BookGridAdapter(@NonNull Context context, ArrayList<Book> books) {
         super(context, 0, books);
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View view, ViewGroup parent) {
+    public View getView(int position, View view, @NonNull ViewGroup parent) {
         Book book = getItem(position);
         if (view == null)
             view = LayoutInflater.from(getContext()).inflate(R.layout.grid_item, parent, false);
         TextView title = view.findViewById(R.id.title);
-        TextView description = view.findViewById(R.id.description);
-        title.setText(book.getTitle());
-        //description.setText(book.getDescription());
+        title.setText(book != null ? book.getTitle() : null);
         return view;
     }
 }

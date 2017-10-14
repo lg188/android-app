@@ -1,14 +1,15 @@
 package eliaslander.bookapp;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 
 /**
- * This file represents a book
+ * This class represents a book
  *
  * @author lg188
  */
 
-public class Book {
+class Book {
     private String title = "Undefined Title";
     private String description = "Undefined Description";
     // TODO: define how to get these images
@@ -17,27 +18,31 @@ public class Book {
     /**
      * Create a book (no cover)
      *
-     * @param title The title of the book
-     * @param description The Description of the book
+     * @param title       Book title
+     * @param description Book description
      */
-    public Book(String title, String description) {
-        this.title = title;
-        this.description = description;
+    Book(String title, String description) {
+        setTitle(title);
+        setDescription(description);
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    @SuppressWarnings("WeakerAccess")
+    public void setTitle(@NonNull String title) {
         this.title = title;
     }
 
-    public String getDescription() {
+    String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    @SuppressWarnings("WeakerAccess")
+    void setDescription(@NonNull String description) {
         this.description = description;
     }
+
+
 }
