@@ -50,17 +50,20 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
+        // populate book list
         ArrayList<Book> books = new ArrayList<>();
         books.add(new Book("Harry potter 1", "Magical sticks"));
         books.add(new Book("Harry potter 2", "Magical death sticks"));
+
+        // assign adapters to views
         BookListAdapter listAdapter = new BookListAdapter(this, books);
         BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
         listView = (ListView) findViewById(R.id.list_view);
-        listView.setAdapter(listAdapter);
         gridView = (GridView) findViewById(R.id.grid_view);
+        listView.setAdapter(listAdapter);
         gridView.setAdapter(gridAdapter);
 
+        // item onClick (for both grid and list)
         AdapterView.OnItemClickListener clickListener = (parent, view, position, id) -> {
             Toast.makeText(getApplicationContext(), "Item clicked", Toast.LENGTH_SHORT).show();
             switchView(viewMode.toggle());
