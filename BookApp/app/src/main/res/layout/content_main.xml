@@ -10,12 +10,14 @@
 
 
         <GridView
+            android:id="@+id/grid_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/grid_view" />
+            android:columnWidth="80dp"
+            android:numColumns="auto_fit" />
         <ListView
+            android:id="@+id/list_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/list_view" />
+            android:layout_height="match_parent" />
 
 </android.support.constraint.ConstraintLayout>
