@@ -72,6 +72,11 @@ public class MainActivity extends AppCompatActivity
         gridView.setOnItemClickListener(clickListener);
         resetView();
 
+        findViewById(R.id.action_switch_view).setOnClickListener((view) -> {
+            Toast.makeText(getApplicationContext(), "Switch button clicked", Toast.LENGTH_SHORT);
+
+        });
+
     }
 
     @Override
