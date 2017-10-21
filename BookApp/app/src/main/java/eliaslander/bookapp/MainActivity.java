@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         // populate book list
         ArrayList<Book> books = new ArrayList<>();
         for (int i = 0; i <= 50; i++) {
-            books.add(new Book("Harry potter " + i, "J. K. Rowling"));
+            books.add(new Book("Example Book " + i, "J. K. Rowling"));
         }
 
         // assign adapters to views
@@ -111,19 +111,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        switch (id) {
+            case R.id.nav_library:
+                //TODO: switch to library;
+                break;
+            default:
+                // TODO: switch to default item
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
