@@ -52,8 +52,9 @@ public class MainActivity extends AppCompatActivity
 
         // populate book list
         ArrayList<Book> books = new ArrayList<>();
-        books.add(new Book("Harry potter 1", "Magical sticks"));
-        books.add(new Book("Harry potter 2", "Magical death sticks"));
+        for (int i = 0; i <= 50; i++) {
+            books.add(new Book("Harry potter " + i, "Magical death sticks"));
+        }
 
         // assign adapters to views
         BookListAdapter listAdapter = new BookListAdapter(this, books);
