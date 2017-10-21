@@ -66,16 +66,10 @@ public class MainActivity extends AppCompatActivity
         // item onClick (for both grid and list)
         AdapterView.OnItemClickListener clickListener = (parent, view, position, id) -> {
             Toast.makeText(getApplicationContext(), "Item clicked", Toast.LENGTH_SHORT).show();
-            switchView(viewMode.toggle());
         };
         listView.setOnItemClickListener(clickListener);
         gridView.setOnItemClickListener(clickListener);
         resetView();
-
-        findViewById(R.id.action_switch_view).setOnClickListener((view) -> {
-            Toast.makeText(getApplicationContext(), "Switch button clicked", Toast.LENGTH_SHORT);
-
-        });
 
     }
 
@@ -168,6 +162,11 @@ public class MainActivity extends AppCompatActivity
     private void switchView(viewType mode) {
         this.viewMode = mode;
         this.resetView();
+    }
+
+    public void switchView(MenuItem item) {
+        Toast.makeText(getApplicationContext(), "Switching view", Toast.LENGTH_SHORT).show();
+        this.switchView(this.viewMode.toggle());
     }
 
     public enum viewType {

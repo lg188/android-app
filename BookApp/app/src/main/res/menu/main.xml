@@ -8,7 +8,7 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_switch_view"
+        android:onClick="switchView"
         android:title="Switch view"
-
         />
 </menu>
