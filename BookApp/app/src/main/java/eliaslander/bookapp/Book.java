@@ -11,19 +11,19 @@ import android.support.annotation.NonNull;
 
 class Book {
     private String title = "Undefined Title";
-    private String description = "Undefined Description";
+    private String author = "Undefined Author";
     // TODO: define how to get these images
     private Drawable image;
 
     /**
      * Create a book (no cover)
      *
-     * @param title       Book title
-     * @param description Book description
+     * @param title  Book title
+     * @param author Book author
      */
-    Book(String title, String description) {
+    Book(String title, String author) {
         setTitle(title);
-        setDescription(description);
+        setAuthor(author);
     }
 
     public String getTitle() {
@@ -35,13 +35,13 @@ class Book {
         this.title = title;
     }
 
-    String getDescription() {
-        return description;
+    String getAuthor() {
+        return author;
     }
 
     @SuppressWarnings("WeakerAccess")
-    void setDescription(@NonNull String description) {
-        this.description = description;
+    void setAuthor(@NonNull String author) {
+        this.author = author;
     }
 
 
