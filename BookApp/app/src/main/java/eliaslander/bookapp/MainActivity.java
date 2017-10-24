@@ -1,5 +1,7 @@
 package eliaslander.bookapp;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -70,7 +72,10 @@ public class MainActivity extends AppCompatActivity
         };
         listView.setOnItemClickListener(clickListener);
         gridView.setOnItemClickListener(clickListener);
-        resetView();
+
+        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+        boolean list  = sharedPreferences.getBoolean("listView",false);
+        switchView(list ? viewMode.LIST: viewMode.GRID );
 
     }
 
@@ -128,24 +133,25 @@ public class MainActivity extends AppCompatActivity
      * reset view to {@link #viewMode}
      */
     private void resetView() {
-        String dbg = "";
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
         switch (viewMode) {
             case GRID:
                 gridView.setVisibility(View.VISIBLE);
                 listView.setVisibility(View.INVISIBLE);
-                dbg += "grid";
+                editor.putBoolean("listView",false) ;
                 break;
             case LIST:
+                editor.putBoolean("listView",true) ;
                 gridView.setVisibility(View.INVISIBLE);
                 listView.setVisibility(View.VISIBLE);
-                dbg += "list";
                 break;
             default:
+                editor.putBoolean("listView",false) ;
                 gridView.setVisibility(View.INVISIBLE);
                 listView.setVisibility(View.INVISIBLE);
-                dbg += "error";
         }
-        Log.d(TAG, dbg);
+        editor.commit();
     }
 
     /**
