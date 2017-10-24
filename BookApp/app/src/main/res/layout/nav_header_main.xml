@@ -25,10 +25,11 @@
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="Book App"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        android:textColor="#68FBB4" />
+        android:textColor="#16643f" />
 
     <TextView
         android:id="@+id/textView"
+        android:textColor="#16643f"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="The best a reader can get" />
