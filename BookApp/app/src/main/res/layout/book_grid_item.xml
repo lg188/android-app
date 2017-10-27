@@ -9,8 +9,8 @@
         android:layout_width="60dp"
         android:layout_height="80dp"
         android:layout_gravity="center"
-        app:srcCompat="@mipmap/book"
-        />
+        app:srcCompat="@mipmap/book" />
+
     <TextView
         android:id="@+id/title"
         android:layout_width="60dp"
@@ -19,7 +19,6 @@
         android:gravity="center"
         android:text="@string/title"
         android:textSize="20sp"
-        android:textStyle="bold"
-        />
+        android:textStyle="bold" />
 
 </LinearLayout>

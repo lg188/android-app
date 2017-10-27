@@ -30,7 +30,7 @@ class BookGridAdapter extends ArrayAdapter<Book> {
     public View getView(int position, View view, @NonNull ViewGroup parent) {
         Book book = getItem(position);
         if (view == null)
-            view = LayoutInflater.from(getContext()).inflate(R.layout.grid_item, parent, false);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.book_grid_item, parent, false);
         TextView title = view.findViewById(R.id.title);
         title.setText(book != null ? book.getTitle() : null);
         return view;

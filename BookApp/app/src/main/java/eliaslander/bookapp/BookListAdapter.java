@@ -30,7 +30,7 @@ class BookListAdapter extends ArrayAdapter<Book> {
     public View getView(int position, View view, @NonNull ViewGroup parent) {
         Book book = getItem(position);
         if (view == null)
-            view = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.book_list_item, parent, false);
         TextView title = view.findViewById(R.id.title);
         TextView author = view.findViewById(R.id.author);
         title.setText(book != null ? book.getTitle() : null);
