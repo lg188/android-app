@@ -1,6 +1,7 @@
 package eliaslander.bookapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -80,6 +81,15 @@ public class MainActivity extends AppCompatActivity
         AdapterView.OnItemClickListener clickListener = (AdapterView<?> parent, View view, int position, long id) -> {
             Book book = books.get(position);
             Toast.makeText(getApplicationContext(), book.getId() + " clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra("book_id", book.getId());
+            // TODO: Remove this when it's safe
+            try {
+                startActivity(intent);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         };
         listView.setOnItemClickListener(clickListener);
         gridView.setOnItemClickListener(clickListener);
