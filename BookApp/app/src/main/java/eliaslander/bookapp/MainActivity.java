@@ -19,7 +19,11 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -53,9 +57,13 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         // populate book list
-        ArrayList<Book> books = new ArrayList<>();
-        for (int i = 0; i <= 50; i++) {
-            books.add(new Book("Example Book " + i, "J. K. Rowling"));
+        ArrayList<Book> books = null;
+        try {
+            books = Controller.SearchBooks("harry");
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         // assign adapters to views
