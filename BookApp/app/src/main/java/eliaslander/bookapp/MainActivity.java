@@ -83,6 +83,9 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), book.getId() + " clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, DetailActivity.class);
             intent.putExtra("book_id", book.getId());
+            intent.putExtra("book_title", book.getTitle());
+            intent.putExtra("book_author", book.getAuthor());
+            intent.putExtra("book_imageUrl", book.getImageUrl());
             // TODO: Remove this when it's safe
             try {
                 startActivity(intent);
