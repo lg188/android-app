@@ -6,7 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -33,8 +36,10 @@ class BookListAdapter extends ArrayAdapter<Book> {
             view = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
         TextView title = view.findViewById(R.id.title);
         TextView author = view.findViewById(R.id.author);
+        ImageView image = view.findViewById(R.id.image);
         title.setText(book != null ? book.getTitle() : null);
         author.setText(book != null ? book.getAuthor() : null);
+        Picasso.with(getContext()).load(book.getImageUrl()).into(image);
         return view;
     }
 }

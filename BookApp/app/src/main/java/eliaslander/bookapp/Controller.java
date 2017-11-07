@@ -1,29 +1,18 @@
 package eliaslander.bookapp;
 
-import android.support.annotation.NonNull;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 import org.xml.sax.ContentHandler;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -46,7 +35,11 @@ public class Controller {
         ContentHandler handler = new ContentHandler() {
             boolean bTitle = false;
             boolean bAuthor = false;
-            String title, author;
+            boolean bImageUrl = false;
+            boolean bId = false;
+            boolean bBestBook = false;
+            String title, author, imageUrl;
+            int id;
 
 
             @Override
@@ -78,7 +71,9 @@ public class Controller {
             public void startElement(String s, String s1, String s2, Attributes attributes) throws SAXException {
 
 
-
+                if (s2.equalsIgnoreCase("IMAGE_URL")) {
+                    bImageUrl = true;
+                }
 
                 if (s2.equalsIgnoreCase("TITLE")) {
                     bTitle = true;
@@ -86,14 +81,27 @@ public class Controller {
                 if (s2.equalsIgnoreCase("NAME")) {
                     bAuthor = true;
                 }
+                if (s2.equalsIgnoreCase("ID")&& bBestBook && !bAuthor) {
+                    bId = true;
+                }
+                if (s2.equalsIgnoreCase("BEST_BOOK")) {
+                    bBestBook = true;
+                }
             }
 
             @Override
             public void endElement(String s, String s1, String s2) throws SAXException {
                 if (s2.equalsIgnoreCase("WORK")) {
-                    Book book = new Book(title,author);
+                    Book book = new Book(id,title,author);
+                    book.setImageUrl(imageUrl);
                     books.add(book);
                 }
+
+                if (s2.equalsIgnoreCase("BEST_BOOK")) {
+                    bBestBook = false;
+                }
+
+
             }
 
             @Override
@@ -104,9 +112,18 @@ public class Controller {
                     bTitle = false;
                 }
                 if(bAuthor) {
-                    title = new String(chars,start,length);
+                    author = new String(chars,start,length);
                     bAuthor = false;
                 }
+                if(bImageUrl) {
+                    imageUrl = new String(chars,start,length);
+                    bImageUrl = false;
+                }
+                if(bId) {
+                    id = Integer.parseInt(new String(chars,start,length));
+                    bId = false;
+                }
+
 
 
             }
@@ -139,6 +156,211 @@ public class Controller {
             e.printStackTrace();
         }
         return books;
+    }
+
+    public static Book GetBookById(int id) throws MalformedURLException {
+        String adress = "https://www.goodreads.com/book/show/"+id+".xml?key=rqDMOWLcyHZbWo3eeoN2g";
+        String charset = "UTF-8";
+        Book book = new Book();
+        URL url = new URL(adress);
+
+
+        ContentHandler handler = new ContentHandler() {
+            boolean bWorkTitle = false;
+            boolean bWorkAuthorName = false;
+            boolean bImageUrl = false;
+            boolean bDescription = false;
+            boolean bWorkAuthor = false;
+            boolean bRating = false;
+            boolean bWork = false;
+            boolean bSimilarBooks = false;
+            boolean bSimilarBook = false;
+
+            boolean bSimilarTitle = false;
+            boolean bSimilarAuthor = false;
+            boolean bSimilarId = false;
+            String title, author, imageUrl, description, similarTitle, similarAuthor;
+            float rating;
+            int similarId;
+            List<Book> similarBooks = new ArrayList();
+
+            @Override
+            public void setDocumentLocator(Locator locator) {
+
+            }
+
+            @Override
+            public void startDocument() throws SAXException {
+
+            }
+
+            @Override
+            public void endDocument() throws SAXException {
+
+            }
+
+            @Override
+            public void startPrefixMapping(String s, String s1) throws SAXException {
+
+            }
+
+            @Override
+            public void endPrefixMapping(String s) throws SAXException {
+
+            }
+
+            @Override
+            public void startElement(String s, String s1, String s2, Attributes attributes) throws SAXException {
+
+
+                if (s2.equalsIgnoreCase("IMAGE_URL")&& bWork && !bSimilarBooks && !bWorkAuthor) {
+                    bImageUrl = true;
+                }
+
+                if (s2.equalsIgnoreCase("TITLE")&& bWork && !bSimilarBooks) {
+                    bWorkTitle = true;
+                }
+                if (s2.equalsIgnoreCase("NAME")&& bWorkAuthor && bWork && !bSimilarBooks) {
+                    bWorkAuthorName = true;
+                }
+                if (s2.equalsIgnoreCase("DESCRIPTION")&& bWork) {
+                    bDescription = true;
+                }
+                if (s2.equalsIgnoreCase("AUTHOR")) {
+                    bWorkAuthor = true;
+                }
+                if (s2.equalsIgnoreCase("AVERAGE_RATING") && bWork) {
+                    bRating = true;
+                }
+                if (s2.equalsIgnoreCase("WORK")) {
+                    bWork = true;
+                }
+                if (s2.equalsIgnoreCase("SIMILAR-BOOKS")) {
+                    bSimilarBooks = true;
+                }
+
+
+                if (s2.equalsIgnoreCase("BOOK")&& bSimilarBooks) {
+                    bSimilarBook = true;
+                }
+                if (s2.equalsIgnoreCase("TITLE") && bSimilarBooks) {
+                    bSimilarTitle = true;
+                }
+                if (s2.equalsIgnoreCase("NAME")&& bSimilarBooks) {
+                    bSimilarAuthor = true;
+                }
+
+
+
+            }
+
+            @Override
+            public void endElement(String s, String s1, String s2) throws SAXException {
+                if (s2.equalsIgnoreCase("WORK")) {
+                    bWork = false;
+                }
+
+                if (s2.equalsIgnoreCase("AUTHOR")) {
+                    bWorkAuthor = false;
+                }
+
+                if (s2.equalsIgnoreCase("SIMILAR_BOOKS")) {
+                    bSimilarBooks = false;
+                }
+
+                if (s2.equalsIgnoreCase("BOOK")&& bSimilarBooks) {
+                    similarBooks.add(new Book(similarId,similarTitle,similarAuthor));
+                    bSimilarBook = true;
+                }
+
+                if (s2.equalsIgnoreCase("BOOK")&& !bSimilarBooks) {
+                    book.setId(id);
+                    book.setTitle(title);
+                    book.setAuthor(author);
+                    book.setImageUrl(imageUrl);
+                    book.setDescription(description);
+                    book.setRating(rating);
+                    book.setSimilarBooks(similarBooks);
+
+                }
+
+
+            }
+
+            @Override
+            public void characters(char[] chars, int start, int length) throws SAXException {
+
+                if(bWorkTitle) {
+                    title = new String(chars, start,length);
+                    bWorkTitle = false;
+                }
+                if(bWorkAuthorName) {
+                    author = new String(chars,start,length);
+                    bWorkAuthorName = false;
+                }
+                if(bImageUrl) {
+                    imageUrl = new String(chars,start,length);
+                    bImageUrl = false;
+                }
+                if(bDescription){
+                    description = new String(chars,start,length);
+                    bDescription = false;
+                }
+                if(bRating){
+                    rating = Float.parseFloat(new String(chars,start,length));
+                    bRating = false;
+                }
+
+                if(bSimilarTitle) {
+                    similarTitle = new String(chars, start,length);
+                    bSimilarTitle = false;
+                }
+                if(bSimilarAuthor) {
+                    similarAuthor = new String(chars, start,length);
+                    bSimilarAuthor = false;
+                }
+                if(bSimilarId) {
+                    similarId = Integer.parseInt(new String(chars, start,length));
+                    bSimilarId = false;
+                }
+
+
+
+
+
+
+
+
+            }
+
+            @Override
+            public void ignorableWhitespace(char[] chars, int i, int i1) throws SAXException {
+
+            }
+
+            @Override
+            public void processingInstruction(String s, String s1) throws SAXException {
+
+            }
+
+            @Override
+            public void skippedEntity(String s) throws SAXException {
+
+            }
+        };
+
+        try {
+            //System.setProperty( "org.xml.sax.driver", "javax.xml.parsers.SAXParser" );
+            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            SAXParser newSAXParser = saxParserFactory.newSAXParser();
+            XMLReader myReader = newSAXParser.getXMLReader();
+            //XMLReader myReader = XMLReaderFactory.createXMLReader();
+            myReader.setContentHandler(handler);
+            myReader.parse(new InputSource(url.openStream()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return book;
     }
 
 
