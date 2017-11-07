@@ -11,7 +11,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +23,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -32,7 +30,7 @@ public class MainActivity extends AppCompatActivity
     private final String TAG = "MainActivity";
     private ListView listView;
     private GridView gridView;
-
+    private ArrayList<Book> books;
     private viewType viewMode = viewType.GRID;
 
     @Override
@@ -61,7 +59,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         // populate book list
-        ArrayList<Book> books = new ArrayList<>();
+        books = new ArrayList<>();
         try {
             books = Controller.SearchBooks("harry");
         } catch (SAXException e) {
@@ -79,15 +77,16 @@ public class MainActivity extends AppCompatActivity
         gridView.setAdapter(gridAdapter);
 
         // item onClick (for both grid and list)
-        AdapterView.OnItemClickListener clickListener = (parent, view, position, id) -> {
-            Toast.makeText(getApplicationContext(), "Item clicked", Toast.LENGTH_SHORT).show();
+        AdapterView.OnItemClickListener clickListener = (AdapterView<?> parent, View view, int position, long id) -> {
+            Book book = books.get(position);
+            Toast.makeText(getApplicationContext(), book.getId() + " clicked", Toast.LENGTH_SHORT).show();
         };
         listView.setOnItemClickListener(clickListener);
         gridView.setOnItemClickListener(clickListener);
 
         SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
         boolean list  = sharedPreferences.getBoolean("listView",false);
-        switchView(list ? viewMode.LIST: viewMode.GRID );
+        switchView(list ? viewType.LIST : viewType.GRID);
 
     }
 
