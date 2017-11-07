@@ -25,6 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 /**
  * Created by 11500585 on 24/10/2017.
  */
@@ -124,9 +127,17 @@ public class Controller {
             }
         };
 
-        XMLReader myReader = XMLReaderFactory.createXMLReader();
-        myReader.setContentHandler(handler);
-        myReader.parse(new InputSource(url.openStream()));
+        try {
+            //System.setProperty( "org.xml.sax.driver", "javax.xml.parsers.SAXParser" );
+            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+            SAXParser newSAXParser = saxParserFactory.newSAXParser();
+            XMLReader myReader = newSAXParser.getXMLReader();
+            //XMLReader myReader = XMLReaderFactory.createXMLReader();
+            myReader.setContentHandler(handler);
+            myReader.parse(new InputSource(url.openStream()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return books;
     }
 
