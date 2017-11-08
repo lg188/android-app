@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity
 
         SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
         boolean list  = sharedPreferences.getBoolean("listView",false);
+        //sharedPreferences.getStringSet()
         switchView(list ? viewType.LIST : viewType.GRID);
 
     }
