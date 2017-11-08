@@ -34,10 +34,11 @@ public class Controller {
 
         ContentHandler handler = new ContentHandler() {
             boolean bTitle = false;
-            boolean bAuthor = false;
+            boolean bAuthorName = false;
             boolean bImageUrl = false;
             boolean bId = false;
             boolean bBestBook = false;
+            boolean bAuthor = false;
             String title, author, imageUrl;
             int id;
 
@@ -79,13 +80,16 @@ public class Controller {
                     bTitle = true;
                 }
                 if (s2.equalsIgnoreCase("NAME")) {
-                    bAuthor = true;
+                    bAuthorName = true;
                 }
                 if (s2.equalsIgnoreCase("ID")&& bBestBook && !bAuthor) {
                     bId = true;
                 }
                 if (s2.equalsIgnoreCase("BEST_BOOK")) {
                     bBestBook = true;
+                }
+                if (s2.equalsIgnoreCase("AUTHOR")) {
+                    bAuthor = true;
                 }
             }
 
@@ -100,6 +104,9 @@ public class Controller {
                 if (s2.equalsIgnoreCase("BEST_BOOK")) {
                     bBestBook = false;
                 }
+                if (s2.equalsIgnoreCase("AUTHOR")) {
+                    bAuthor = false;
+                }
 
 
             }
@@ -111,9 +118,9 @@ public class Controller {
                     title = new String(chars, start,length);
                     bTitle = false;
                 }
-                if(bAuthor) {
+                if(bAuthorName) {
                     author = new String(chars,start,length);
-                    bAuthor = false;
+                    bAuthorName = false;
                 }
                 if(bImageUrl) {
                     imageUrl = new String(chars,start,length);
@@ -160,7 +167,6 @@ public class Controller {
 
     public static Book GetBookById(int id) throws MalformedURLException {
         String adress = "https://www.goodreads.com/book/show/"+id+".xml?key=rqDMOWLcyHZbWo3eeoN2g";
-        String charset = "UTF-8";
         Book book = new Book();
         URL url = new URL(adress);
 
@@ -170,9 +176,10 @@ public class Controller {
             boolean bWorkAuthorName = false;
             boolean bImageUrl = false;
             boolean bDescription = false;
-            boolean bWorkAuthor = false;
+            boolean bAuthor = false;
+            boolean bWorkAuthor = true;
             boolean bRating = false;
-            boolean bWork = false;
+            boolean bSeries = false;
             boolean bSimilarBooks = false;
             boolean bSimilarBook = false;
 
@@ -213,27 +220,27 @@ public class Controller {
             public void startElement(String s, String s1, String s2, Attributes attributes) throws SAXException {
 
 
-                if (s2.equalsIgnoreCase("IMAGE_URL")&& bWork && !bSimilarBooks && !bWorkAuthor) {
+                if (s2.equalsIgnoreCase("IMAGE_URL")&& !bSeries && !bSimilarBooks && !bAuthor) {
                     bImageUrl = true;
                 }
 
-                if (s2.equalsIgnoreCase("TITLE")&& bWork && !bSimilarBooks) {
+                if (s2.equalsIgnoreCase("TITLE") &&!bSeries && !bSimilarBooks) {
                     bWorkTitle = true;
                 }
-                if (s2.equalsIgnoreCase("NAME")&& bWorkAuthor && bWork && !bSimilarBooks) {
+                if (s2.equalsIgnoreCase("NAME")&& bAuthor &&bWorkAuthor && !bSeries && !bSimilarBooks) {
                     bWorkAuthorName = true;
                 }
-                if (s2.equalsIgnoreCase("DESCRIPTION")&& bWork) {
+                if (s2.equalsIgnoreCase("DESCRIPTION")&& !bSeries) {
                     bDescription = true;
                 }
                 if (s2.equalsIgnoreCase("AUTHOR")) {
-                    bWorkAuthor = true;
+                    bAuthor = true;
                 }
-                if (s2.equalsIgnoreCase("AVERAGE_RATING") && bWork) {
+                if (s2.equalsIgnoreCase("AVERAGE_RATING") && !bSeries && !bSimilarBooks) {
                     bRating = true;
                 }
-                if (s2.equalsIgnoreCase("WORK")) {
-                    bWork = true;
+                if (s2.equalsIgnoreCase("SERIES_WORKS")) {
+                    bSeries = true;
                 }
                 if (s2.equalsIgnoreCase("SIMILAR-BOOKS")) {
                     bSimilarBooks = true;
@@ -256,11 +263,12 @@ public class Controller {
 
             @Override
             public void endElement(String s, String s1, String s2) throws SAXException {
-                if (s2.equalsIgnoreCase("WORK")) {
-                    bWork = false;
+                if (s2.equalsIgnoreCase("SERIES_BOOKS")) {
+                    bSeries = false;
                 }
 
                 if (s2.equalsIgnoreCase("AUTHOR")) {
+                    bAuthor = false;
                     bWorkAuthor = false;
                 }
 
@@ -270,7 +278,7 @@ public class Controller {
 
                 if (s2.equalsIgnoreCase("BOOK")&& bSimilarBooks) {
                     similarBooks.add(new Book(similarId,similarTitle,similarAuthor));
-                    bSimilarBook = true;
+                    bSimilarBook = false;
                 }
 
                 if (s2.equalsIgnoreCase("BOOK")&& !bSimilarBooks) {

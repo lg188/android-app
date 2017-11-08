@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        // TODO add search bar
         // populate book list
         books = new ArrayList<>();
         try {
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity
             Book book = books.get(position);
             Toast.makeText(getApplicationContext(), book.getId() + " clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, DetailActivity.class);
-            intent.putExtra("book_id", book.getId());
+            intent.putExtra("book_id", book.getId()+"");
             intent.putExtra("book_title", book.getTitle());
             intent.putExtra("book_author", book.getAuthor());
             intent.putExtra("book_imageUrl", book.getImageUrl());
