@@ -23,7 +23,9 @@ import android.widget.Toast;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -62,13 +65,17 @@ public class MainActivity extends AppCompatActivity
         // TODO add search bar
         // populate book list
         books = new ArrayList<>();
-        try {
-            books = Controller.SearchBooks("harry");
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        Set<String> bookIds = sharedPreferences.getStringSet("bookmarkedBooks",null);
+        if(bookIds != null){
+            for (String str : bookIds) {
+                try {
+                    books.add(Controller.GetBookById(Integer.parseInt(str)));
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+
 
         // assign adapters to views
         BookListAdapter listAdapter = new BookListAdapter(this, books);
@@ -98,7 +105,7 @@ public class MainActivity extends AppCompatActivity
         listView.setOnItemClickListener(clickListener);
         gridView.setOnItemClickListener(clickListener);
 
-        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+
         boolean list  = sharedPreferences.getBoolean("listView",false);
         switchView(list ? viewType.LIST : viewType.GRID);
 
