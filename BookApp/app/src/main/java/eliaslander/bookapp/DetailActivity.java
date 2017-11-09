@@ -3,11 +3,8 @@ package eliaslander.bookapp;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.Image;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -17,10 +14,6 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class DetailActivity extends AppCompatActivity {
@@ -43,11 +36,11 @@ public class DetailActivity extends AppCompatActivity {
         }
 
 
-        TextView title = (TextView) findViewById(R.id.detail_title);
-        TextView author = (TextView) findViewById(R.id.detail_author);
-        ImageView image = (ImageView) findViewById(R.id.detail_image);
-        TextView rating = (TextView) findViewById(R.id.detail_rating);
-        TextView description = (TextView) findViewById(R.id.detail_description);
+        TextView title = findViewById(R.id.detail_title);
+        TextView author = findViewById(R.id.detail_author);
+        ImageView image = findViewById(R.id.detail_image);
+        TextView rating = findViewById(R.id.detail_rating);
+        TextView description = findViewById(R.id.detail_description);
 
         title.setText(book.getTitle());
         author.setText(book.getAuthor());
@@ -60,9 +53,12 @@ public class DetailActivity extends AppCompatActivity {
         try {
             prefs = this.getPreferences(Context.MODE_PRIVATE);
             bookmarkBooks = prefs.getStringSet("bookmarkBooks", null);
+            /*
             if (bookmarkBooks == null) {
-                bookmarkBooks = new HashSet<>(Arrays.asList(""));
+                bookmarkBooks = new HashSet<>(Arrays.asList(null));
             }
+            */
+
             for(String s :  bookmarkBooks){
                 String msg;
                 if (s.equals(this.id) ){
@@ -78,7 +74,9 @@ public class DetailActivity extends AppCompatActivity {
 
         }
     }
-    void toggleFave(View view){
+
+    void toggleBookmark(View view) {
+        loadBookmarks();
         Toast.makeText(getApplicationContext(),"Clicked fave", Toast.LENGTH_SHORT).show();
         bookmarked = !bookmarked;
         try {
@@ -90,7 +88,7 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
     void updateBookmarkIcon(){
-        ImageButton button = (ImageButton) findViewById(R.id.detail_bookmark) ;
+        ImageButton button = findViewById(R.id.detail_bookmark);
         button.setImageResource( bookmarked ? R.drawable.bookmark_full : R.drawable.bookmark_empty);
     }
 
@@ -100,8 +98,11 @@ public class DetailActivity extends AppCompatActivity {
         saveBookmark();
     }
 
+    void loadBookmarks() {
+        bookmarkBooks = prefs.getStringSet("bookmarkBooks", null);
+    }
     void saveBookmark(){
-        if(bookmarked){
+        if (!bookmarked) {
             // remove bookmark
             for(String s : bookmarkBooks){
                 if(s.equals(this.id+"")){
@@ -110,18 +111,10 @@ public class DetailActivity extends AppCompatActivity {
             }
         }else{
             //add bookmark
-            bookmarkBooks.add(this.id+"");
+            bookmarkBooks.add(this.id + ""); // TODO: mogelijke duplicaat
         }
         SharedPreferences.Editor editor = prefs.edit();
         editor.putStringSet("bookmarkBooks", bookmarkBooks);
         editor.commit();
-
-    }
-    void printBookmarks(){
-        Log.v("bookmarked-books", "----<");
-        for(String s : bookmarkBooks){
-            Log.v("bookmarked-books", s+"");
-        }
-        Log.v("bookmarked-books", "---->");
     }
 }

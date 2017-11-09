@@ -45,11 +45,11 @@
     </LinearLayout>
   <ImageButton
       android:id="@+id/detail_bookmark"
-      android:onClick="toggleFave"
-      app:srcCompat="@drawable/bookmark_empty"
-
       android:layout_width="match_parent"
-      android:layout_height="wrap_content" />
+      android:layout_height="wrap_content"
+
+      android:onClick="toggleBookmark"
+      app:srcCompat="@drawable/bookmark_empty" />
 
     <TextView
         android:id="@+id/detail_description"
