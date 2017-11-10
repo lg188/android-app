@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     @SuppressWarnings("FieldCanBeLocal")
     private ListView listView;
     private GridView gridView;
@@ -52,12 +51,6 @@ public class MainActivity extends AppCompatActivity
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        /*
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
-        */
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -73,7 +66,6 @@ public class MainActivity extends AppCompatActivity
         searchView.setLayoutParams(new Toolbar.LayoutParams(Gravity.RIGHT));
         navigationMenu = navigationView.getMenu();
 
-
         loadBookmarks();
         books_shown = books_bookmarked;
         reloadAdapters();
@@ -84,7 +76,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             switchToLibrary();
         }
-
 
         // item onClick (for both grid and list)
         AdapterView.OnItemClickListener clickListener = (AdapterView<?> parent, View view, int position, long id) -> {
@@ -101,15 +92,12 @@ public class MainActivity extends AppCompatActivity
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         };
         listView.setOnItemClickListener(clickListener);
         gridView.setOnItemClickListener(clickListener);
 
-
         boolean list  = sharedPreferences.getBoolean("listView",false);
         switchView(list ? viewType.LIST : viewType.GRID);
-
     }
 
     @Override
@@ -131,8 +119,6 @@ public class MainActivity extends AppCompatActivity
                 reloadAdapters();
                 return true;
             }
-
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 return true;
@@ -155,7 +141,6 @@ public class MainActivity extends AppCompatActivity
             default:
                 switchToLibrary();
         }
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -214,7 +199,6 @@ public class MainActivity extends AppCompatActivity
         reloadAdapters();
     }
 
-
     /**
      * reset view to {@link #viewMode}
      */
@@ -269,16 +253,11 @@ public class MainActivity extends AppCompatActivity
 
     public enum viewType {
         GRID, LIST;
-
         viewType toggle() {
             if (this.equals(GRID))
                 return LIST;
             else
                 return GRID;
         }
-    }
-
-    private enum ListType {
-        LIBRARY, SEARCH
     }
 }

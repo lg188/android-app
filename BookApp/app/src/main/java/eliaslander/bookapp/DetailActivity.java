@@ -36,7 +36,6 @@ public class DetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
         TextView title = findViewById(R.id.detail_title);
         TextView author = findViewById(R.id.detail_author);
         ImageView image = findViewById(R.id.detail_image);
@@ -98,7 +97,6 @@ public class DetailActivity extends AppCompatActivity {
             bookmarkedBooks.add(this.id + "");
         }
 
-
         SharedPreferences.Editor editor = prefs.edit();
         HashSet<String> temp = new HashSet(bookmarkedBooks);
 
@@ -123,9 +121,6 @@ public class DetailActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            //Toast.makeText(getApplicationContext(), "Unable to store in faves", Toast.LENGTH_SHORT).show();
-
         }
-
     }
 }
