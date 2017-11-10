@@ -1,10 +1,8 @@
 package eliaslander.bookapp;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
@@ -16,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,22 +23,20 @@ import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Set;
 
-import eliaslander.bookapp.databinding.AppBarMainBinding;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     @SuppressWarnings("FieldCanBeLocal")
-    private final String TAG = "MainActivity";
     private ListView listView;
     private GridView gridView;
-    private ArrayList<Book> books;
+    private SearchView searchView;
+    private BookGridAdapter gridAdapter;
+    private BookListAdapter listAdapter;
+    private ArrayList<Book> books_shown, books_search, books_bookmarked;
+    private ListType listType = ListType.LIBRARY;
     private viewType viewMode = viewType.GRID;
 
     @Override
@@ -68,16 +65,20 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        listView = findViewById(R.id.list_view);
+        gridView = findViewById(R.id.grid_view);
+        searchView = findViewById(R.id.search);
+        searchView.setLayoutParams(new Toolbar.LayoutParams(Gravity.RIGHT));
 
-        try {
-            switchToLibrary();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        loadBookmarks();
+        books_shown = books_bookmarked;
+        reloadAdapters();
+
 
         // item onClick (for both grid and list)
         AdapterView.OnItemClickListener clickListener = (AdapterView<?> parent, View view, int position, long id) -> {
-            Book book = books.get(position);
+            Book book = books_shown.get(position);
             Toast.makeText(getApplicationContext(), book.getId() + " clicked", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, DetailActivity.class);
             intent.putExtra("book_id", book.getId()+"");
@@ -108,16 +109,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -126,13 +117,12 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onQueryTextSubmit(String query) {
                 try {
-                    books = Controller.SearchBooks(query);
-                } catch (SAXException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
+                    books_search = Controller.SearchBooks(query);
+                    books_shown = books_search;
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                updateViews();
+                reloadAdapters();
                 return true;
             }
 
@@ -146,22 +136,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
@@ -170,13 +144,7 @@ public class MainActivity extends AppCompatActivity
                 switchToLibrary();
                 break;
             case R.id.nav_search:
-                try {
-                    switchToSearch();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (SAXException e) {
-                    e.printStackTrace();
-                }
+                switchToSearch();
                 break;
             default:
                 switchToLibrary();
@@ -187,44 +155,41 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void switchToSearch() throws IOException, SAXException {
-        findViewById(R.id.search).setVisibility(View.VISIBLE);
-        books = new ArrayList<>();
-
-        updateViews();
-
+    public void switchToSearch() {
+        searchView.setVisibility(View.VISIBLE);
+        if (books_search == null) {
+            books_search = new ArrayList<>();
+        }
+        books_shown = books_search;
+        reloadAdapters();
     }
 
-    public void updateViews(){
-        BookListAdapter listAdapter = new BookListAdapter(this, books);
-        BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
-        listView = findViewById(R.id.list_view);
-        gridView = findViewById(R.id.grid_view);
-        listView.setAdapter(listAdapter);
-        gridView.setAdapter(gridAdapter);
-    }
 
-    public void switchToLibrary(){
+    private void loadBookmarks() {
         SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
         Set<String> bookIds = sharedPreferences.getStringSet("bookmarks", null);
 
         findViewById(R.id.search).setVisibility(View.INVISIBLE);
 
-        books = new ArrayList<>();
+        books_bookmarked = new ArrayList<>();
         if(bookIds != null){
             for (String str : bookIds) {
                 try {
-                    books.add(Controller.GetBookById(Integer.parseInt(str)));
-                } catch (MalformedURLException e) {
+                    books_bookmarked.add(Controller.GetBookById(Integer.parseInt(str)));
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         } else {
-            Log.v("library", "list is empty");
+            Log.v("library", "library is empty");
         }
+    }
 
-        updateViews();
 
+    public void switchToLibrary() {
+        loadBookmarks();
+        books_shown = books_bookmarked;
+        reloadAdapters();
     }
 
 
@@ -264,8 +229,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void switchView(MenuItem item) {
-        Toast.makeText(getApplicationContext(), "Switching view", Toast.LENGTH_SHORT).show();
         this.switchView(this.viewMode.toggle());
+    }
+
+    private void reloadAdapters() {
+        try {
+            listAdapter = new BookListAdapter(this, books_shown);
+            gridAdapter = new BookGridAdapter(this, books_shown);
+            listView.setAdapter(listAdapter);
+            gridView.setAdapter(gridAdapter);
+        } catch (NullPointerException e) {
+            Log.e("reloadAdapters", "books_shown is null");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public enum viewType {
@@ -277,5 +254,9 @@ public class MainActivity extends AppCompatActivity
             else
                 return GRID;
         }
+    }
+
+    private enum ListType {
+        LIBRARY, SEARCH
     }
 }

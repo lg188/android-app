@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -20,8 +19,8 @@ import java.util.Set;
 public class DetailActivity extends AppCompatActivity {
     private int id;
     private SharedPreferences prefs;
-    private ArrayList<String> bookmarkBooks;
-    private Set<String> bookmarkBooksSet;
+    private ArrayList<String> bookmarkedBooks;
+    private Set<String> bookmarkedBookSet;
     private boolean bookmarked = false;
 
     @Override
@@ -52,41 +51,16 @@ public class DetailActivity extends AppCompatActivity {
 
         // id en fave stuff
         this.id = book.getId();
-        try {
-            prefs = this.getSharedPreferences("data", MODE_PRIVATE);
-            loadBookmarks();
-            if (bookmarkBooks != null) {
-                for (String s : bookmarkBooks) {
-                    if (s.equals(this.id + "")) {
-                        bookmarked = true;
-                        updateBookmarkIcon();
-                    } else {
-                        bookmarked = false;
-                    }
-                }
-            } else {
-                bookmarked = false;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            //Toast.makeText(getApplicationContext(), "Unable to store in faves", Toast.LENGTH_SHORT).show();
-
-        }
+        getBookMarked();
     }
 
     void toggleBookmark(View view) {
         try {
             loadBookmarks();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Toast.makeText(getApplicationContext(), "Clicked fave", Toast.LENGTH_SHORT).show();
-        bookmarked = !bookmarked;
-        try {
+            bookmarked = !bookmarked;
             updateBookmarkIcon();
+            saveBookmark();
         } catch (Exception e) {
-            //Toast.makeText(getApplicationContext(), "Unable to store in faves", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
@@ -97,38 +71,61 @@ public class DetailActivity extends AppCompatActivity {
         button.setImageResource(bookmarked ? R.drawable.bookmark_full : R.drawable.bookmark_empty);
     }
 
-    @Override
-    protected void onDestroy() {
-        saveBookmark();
-        super.onDestroy();
-    }
-
     void loadBookmarks() {
-        bookmarkBooksSet = prefs.getStringSet("bookmarks", null);
-        if (bookmarkBooks != null) {
-            bookmarkBooks = new ArrayList<>(bookmarkBooksSet);
-        } else {
-            bookmarkBooks = new ArrayList<>();
+        try {
+            prefs = getSharedPreferences("data", MODE_PRIVATE);
+            bookmarkedBookSet = prefs.getStringSet("bookmarks", null);
+            bookmarkedBooks = new ArrayList<>();
+            for (String s : bookmarkedBookSet) {
+                bookmarkedBooks.add(s);
+                if (s.equals(this.id))
+                    bookmarked = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     void saveBookmark() {
         if (!bookmarked) {
-            // remove bookmark
-            for (String s : bookmarkBooks) {
+            for (String s : bookmarkedBooks) {
                 if (s.equals(this.id + "")) {
-                    bookmarkBooks.remove(s);
+                    bookmarkedBooks.remove(s);
                 }
             }
         } else {
-            //add bookmark
-            bookmarkBooks.add(this.id + "");
+            bookmarkedBooks.add(this.id + "");
         }
 
 
         SharedPreferences.Editor editor = prefs.edit();
+        HashSet<String> temp = new HashSet(bookmarkedBooks);
 
-        editor.putStringSet("bookmarks", new HashSet<>(bookmarkBooks));
+        editor.putStringSet("bookmarks", temp);
         editor.commit();
+    }
+
+    void getBookMarked() {
+        loadBookmarks();
+        try {
+            if (bookmarkedBooks != null) {
+                for (String s : bookmarkedBooks) {
+                    if (s.equals(this.id + "")) {
+                        bookmarked = true;
+                        updateBookmarkIcon();
+                    } else {
+                        bookmarked = false;
+                    }
+                }
+            } else {
+                bookmarked = false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            //Toast.makeText(getApplicationContext(), "Unable to store in faves", Toast.LENGTH_SHORT).show();
+
+        }
+
     }
 }
