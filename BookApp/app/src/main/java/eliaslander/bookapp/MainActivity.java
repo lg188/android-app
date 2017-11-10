@@ -12,6 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,9 +41,9 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = this.getSharedPreferences("data", Context.MODE_PRIVATE);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -53,20 +54,23 @@ public class MainActivity extends AppCompatActivity
                 .setAction("Action", null).show());
         */
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         // TODO add search bar
         // populate book list
-        books = new ArrayList<>();
-        switchToLibrary();
-
+        // books = new ArrayList<>();
+        try {
+            switchToLibrary();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // item onClick (for both grid and list)
         AdapterView.OnItemClickListener clickListener = (AdapterView<?> parent, View view, int position, long id) -> {
@@ -93,11 +97,16 @@ public class MainActivity extends AppCompatActivity
         //sharedPreferences.getStringSet()
         switchView(list ? viewType.LIST : viewType.GRID);
 
+        try {
+            navigationView.getMenu().getItem(0).setChecked(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -149,7 +158,7 @@ public class MainActivity extends AppCompatActivity
                 switchToLibrary();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -158,16 +167,16 @@ public class MainActivity extends AppCompatActivity
         books = Controller.SearchBooks("harry");
         BookListAdapter listAdapter = new BookListAdapter(this, books);
         BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
-        listView = (ListView) findViewById(R.id.list_view);
-        gridView = (GridView) findViewById(R.id.grid_view);
+        listView = findViewById(R.id.list_view);
+        gridView = findViewById(R.id.grid_view);
         listView.setAdapter(listAdapter);
         gridView.setAdapter(gridAdapter);
 
     }
 
     public void switchToLibrary(){
-        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
-        Set<String> bookIds = sharedPreferences.getStringSet("bookmarkBooks",null);
+        SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
+        Set<String> bookIds = sharedPreferences.getStringSet("bookmarks", null);
         books = new ArrayList<>();
         if(bookIds != null){
             for (String str : bookIds) {
@@ -177,11 +186,14 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
             }
+        } else {
+            Log.v("library", "list is empty");
         }
+
         BookListAdapter listAdapter = new BookListAdapter(this, books);
         BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
-        listView = (ListView) findViewById(R.id.list_view);
-        gridView = (GridView) findViewById(R.id.grid_view);
+        listView = findViewById(R.id.list_view);
+        gridView = findViewById(R.id.grid_view);
         listView.setAdapter(listAdapter);
         gridView.setAdapter(gridAdapter);
 
@@ -192,7 +204,7 @@ public class MainActivity extends AppCompatActivity
      * reset view to {@link #viewMode}
      */
     private void resetView() {
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = this.getSharedPreferences("data", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         switch (viewMode) {
             case GRID:
