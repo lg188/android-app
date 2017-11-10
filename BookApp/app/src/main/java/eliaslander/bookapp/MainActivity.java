@@ -36,8 +36,10 @@ public class MainActivity extends AppCompatActivity
     private BookGridAdapter gridAdapter;
     private BookListAdapter listAdapter;
     private ArrayList<Book> books_shown, books_search, books_bookmarked;
-    private ListType listType = ListType.LIBRARY;
     private viewType viewMode = viewType.GRID;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor editor;
+    private Menu navigationMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,11 +71,19 @@ public class MainActivity extends AppCompatActivity
         gridView = findViewById(R.id.grid_view);
         searchView = findViewById(R.id.search);
         searchView.setLayoutParams(new Toolbar.LayoutParams(Gravity.RIGHT));
+        navigationMenu = navigationView.getMenu();
 
 
         loadBookmarks();
         books_shown = books_bookmarked;
         reloadAdapters();
+        prefs = getSharedPreferences("data", MODE_PRIVATE);
+        editor = prefs.edit();
+        if (prefs.getBoolean("searchEnabled", false)) {
+            switchToSearch(prefs.getString("searchQuery", ""));
+        } else {
+            switchToLibrary();
+        }
 
 
         // item onClick (for both grid and list)
@@ -98,14 +108,8 @@ public class MainActivity extends AppCompatActivity
 
 
         boolean list  = sharedPreferences.getBoolean("listView",false);
-        //sharedPreferences.getStringSet()
         switchView(list ? viewType.LIST : viewType.GRID);
 
-        try {
-            navigationView.getMenu().getItem(0).setChecked(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -116,6 +120,8 @@ public class MainActivity extends AppCompatActivity
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                editor.putString("searchQuery", query);
+                editor.commit();
                 try {
                     books_search = Controller.SearchBooks(query);
                     books_shown = books_search;
@@ -156,9 +162,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void switchToSearch() {
+        switchToSearch("");
+    }
+
+    public void switchToSearch(String searchQuery) {
+        editor.putBoolean("searchEnabled", true);
+        editor.commit();
+        navigationMenu.getItem(1).setChecked(true); //TODO: hardcoded
         searchView.setVisibility(View.VISIBLE);
         if (books_search == null) {
             books_search = new ArrayList<>();
+        }
+        if (!searchQuery.isEmpty()) {
+            searchView.setIconified(false);
+            searchView.setQuery(searchQuery, true);
+        } else {
+            editor.putString("searchQuery", "");
         }
         books_shown = books_search;
         reloadAdapters();
@@ -187,6 +206,9 @@ public class MainActivity extends AppCompatActivity
 
 
     public void switchToLibrary() {
+        navigationMenu.getItem(0).setChecked(true); //TODO: hardcoded
+        editor.putBoolean("searchEnabled", false);
+        editor.commit();
         loadBookmarks();
         books_shown = books_bookmarked;
         reloadAdapters();
