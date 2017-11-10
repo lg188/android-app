@@ -65,25 +65,8 @@ public class MainActivity extends AppCompatActivity
         // TODO add search bar
         // populate book list
         books = new ArrayList<>();
-        Set<String> bookIds = sharedPreferences.getStringSet("bookmarkedBooks",null);
-        if(bookIds != null){
-            for (String str : bookIds) {
-                try {
-                    books.add(Controller.GetBookById(Integer.parseInt(str)));
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        switchToLibrary();
 
-
-        // assign adapters to views
-        BookListAdapter listAdapter = new BookListAdapter(this, books);
-        BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
-        listView = (ListView) findViewById(R.id.list_view);
-        gridView = (GridView) findViewById(R.id.grid_view);
-        listView.setAdapter(listAdapter);
-        gridView.setAdapter(gridAdapter);
 
         // item onClick (for both grid and list)
         AdapterView.OnItemClickListener clickListener = (AdapterView<?> parent, View view, int position, long id) -> {
@@ -139,7 +122,7 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        }
+        } else
 
         return super.onOptionsItemSelected(item);
     }
@@ -151,16 +134,59 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_library:
-                //TODO: switch to library;
+                switchToLibrary();
+                break;
+            case R.id.nav_search:
+                try {
+                    switchToSearch();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                }
                 break;
             default:
-                // TODO: switch to default item
+                switchToLibrary();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    public void switchToSearch() throws IOException, SAXException {
+        books = Controller.SearchBooks("harry");
+        BookListAdapter listAdapter = new BookListAdapter(this, books);
+        BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
+        listView = (ListView) findViewById(R.id.list_view);
+        gridView = (GridView) findViewById(R.id.grid_view);
+        listView.setAdapter(listAdapter);
+        gridView.setAdapter(gridAdapter);
+
+    }
+
+    public void switchToLibrary(){
+        SharedPreferences sharedPreferences = this.getPreferences(Context.MODE_PRIVATE);
+        Set<String> bookIds = sharedPreferences.getStringSet("bookmarkBooks",null);
+        books = new ArrayList<>();
+        if(bookIds != null){
+            for (String str : bookIds) {
+                try {
+                    books.add(Controller.GetBookById(Integer.parseInt(str)));
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        BookListAdapter listAdapter = new BookListAdapter(this, books);
+        BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
+        listView = (ListView) findViewById(R.id.list_view);
+        gridView = (GridView) findViewById(R.id.grid_view);
+        listView.setAdapter(listAdapter);
+        gridView.setAdapter(gridAdapter);
+
+    }
+
 
     /**
      * reset view to {@link #viewMode}

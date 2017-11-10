@@ -7,6 +7,11 @@
             android:icon="@mipmap/bookmarks"
 
             android:title="Library" />
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@mipmap/bookmarks"
+
+            android:title="Search" />
     </group>
 
 </menu>
