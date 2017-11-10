@@ -1,8 +1,10 @@
 package eliaslander.bookapp;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -27,6 +30,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Set;
+
+import eliaslander.bookapp.databinding.AppBarMainBinding;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -63,9 +68,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // TODO add search bar
-        // populate book list
-        // books = new ArrayList<>();
+
         try {
             switchToLibrary();
         } catch (Exception e) {
@@ -118,6 +121,27 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        SearchView searchView = findViewById(R.id.search);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                try {
+                    books = Controller.SearchBooks(query);
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                updateViews();
+                return true;
+            }
+
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return true;
+            }
+        });
         return true;
     }
 
@@ -164,19 +188,28 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void switchToSearch() throws IOException, SAXException {
-        books = Controller.SearchBooks("harry");
+        findViewById(R.id.search).setVisibility(View.VISIBLE);
+        books = new ArrayList<>();
+
+        updateViews();
+
+    }
+
+    public void updateViews(){
         BookListAdapter listAdapter = new BookListAdapter(this, books);
         BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
         listView = findViewById(R.id.list_view);
         gridView = findViewById(R.id.grid_view);
         listView.setAdapter(listAdapter);
         gridView.setAdapter(gridAdapter);
-
     }
 
     public void switchToLibrary(){
         SharedPreferences sharedPreferences = getSharedPreferences("data", MODE_PRIVATE);
         Set<String> bookIds = sharedPreferences.getStringSet("bookmarks", null);
+
+        findViewById(R.id.search).setVisibility(View.INVISIBLE);
+
         books = new ArrayList<>();
         if(bookIds != null){
             for (String str : bookIds) {
@@ -190,12 +223,7 @@ public class MainActivity extends AppCompatActivity
             Log.v("library", "list is empty");
         }
 
-        BookListAdapter listAdapter = new BookListAdapter(this, books);
-        BookGridAdapter gridAdapter = new BookGridAdapter(this, books);
-        listView = findViewById(R.id.list_view);
-        gridView = findViewById(R.id.grid_view);
-        listView.setAdapter(listAdapter);
-        gridView.setAdapter(gridAdapter);
+        updateViews();
 
     }
 
